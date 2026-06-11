@@ -13,5 +13,8 @@ dependencies = [
   "uvicorn[standard]>=0.30.0",
 ]
 
+[tool.setuptools.packages.find]
+include = ["morning_brief*"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
