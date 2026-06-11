@@ -1,0 +1,20 @@
+{
+  "base_currency": "USD",
+  "holdings": [
+    {"ticker": "NBIS", "name": "Nebius Group", "region": "US/Europe", "theme": "AI infrastructure", "asset_class": "equity"},
+    {"ticker": "APLD", "name": "Applied Digital", "region": "US", "theme": "AI data centers", "asset_class": "equity"},
+    {"ticker": "VPG", "name": "Vishay Precision Group", "region": "US/global", "theme": "industrial sensors", "asset_class": "equity"},
+    {"ticker": "MRVL", "name": "Marvell Technology", "region": "US/global", "theme": "semiconductors and networking", "asset_class": "equity"},
+    {"ticker": "RKLB", "name": "Rocket Lab", "region": "US/New Zealand", "theme": "space and defense", "asset_class": "equity"},
+    {"ticker": "GOOG", "name": "Alphabet", "region": "US/global", "theme": "mega-cap internet and AI", "asset_class": "equity"},
+    {"ticker": "ASTS", "name": "AST SpaceMobile", "region": "US/global", "theme": "satellite telecom", "asset_class": "equity"},
+    {"ticker": "LWLG", "name": "Lightwave Logic", "region": "US", "theme": "photonics", "asset_class": "equity"},
+    {"ticker": "PNG.V", "aliases": ["PNG", "Kraken Robotics"], "name": "Kraken Robotics", "region": "Canada", "theme": "marine robotics and defense", "asset_class": "equity"},
+    {"ticker": "CSPX.L", "aliases": ["CSPX"], "name": "iShares Core S&P 500 UCITS ETF", "region": "US/global", "theme": "S&P 500 exposure", "asset_class": "ETF"},
+    {"ticker": "GLDM", "name": "SPDR Gold MiniShares Trust", "region": "global", "theme": "gold", "asset_class": "ETF"},
+    {"ticker": "VSTS", "name": "Vestis", "region": "US", "theme": "business services", "asset_class": "equity"},
+    {"ticker": "RDZN", "name": "Roadzen", "region": "US/India", "theme": "insurance technology", "asset_class": "equity"},
+    {"ticker": "005930.KS", "aliases": ["005930"], "name": "Samsung Electronics", "region": "South Korea/global", "theme": "memory semiconductors and electronics", "asset_class": "equity"}
+  ]
+}
+

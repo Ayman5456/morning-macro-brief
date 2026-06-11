@@ -1,0 +1,17 @@
+[project]
+name = "morning-macro-brief"
+version = "0.2.0"
+description = "Agents SDK global macro and portfolio morning brief engine with long-form audio."
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.115.0",
+  "openai>=1.0.0",
+  "openai-agents>=0.2.0",
+  "pydantic>=2.0.0",
+  "pandas>=2.0.0",
+  "streamlit>=1.57.0",
+  "uvicorn[standard]>=0.30.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
