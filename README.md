@@ -7,7 +7,7 @@ The engine generates:
 - a full Markdown brief
 - structured JSON metadata
 - a 15-minute target narration script
-- compressed long-form audio segments plus a playlist manifest
+- one compressed long-form audio file for browser and iPhone playback
 
 ## Run
 
@@ -15,10 +15,10 @@ The engine generates:
 python3 -m morning_brief.cli --mode both
 ```
 
-Audio defaults to AAC to keep files iPhone-friendly and much smaller than WAV.
+Audio defaults to AAC internally and is merged into one iPhone-friendly `.m4a` file.
 
 ```bash
-python3 -m morning_brief.cli --mode both --audio-format aac --keep-audio 1
+python3 -m morning_brief.cli --mode both --audio-format aac --keep-audio 1 --delete-audio-segments
 python3 -m morning_brief.cli --cleanup-audio --keep-audio 1
 ```
 
@@ -77,20 +77,22 @@ The static app is interactive in the browser: morning/evening toggle, section ta
 
 ## GitHub Pages Deployment
 
-The workflow in `.github/workflows/pages.yml` can publish the static PWA.
+The workflow in `.github/workflows/pages.yml` publishes the static PWA only when manually run. There are no scheduled runs, so OpenAI credits are spent only when you choose `Run workflow`.
 
 Setup:
 
 1. Push this project to a GitHub repository.
 2. In the repo, add an Actions secret named `OPENAI_API_KEY`.
 3. In GitHub Pages settings, select GitHub Actions as the Pages source.
-4. Run the `Publish Markets Brief` workflow manually once.
+4. Run the `Publish Markets Brief` workflow manually for `morning` or `evening`.
 5. Open the Pages URL on iPhone Safari and use Share -> Add to Home Screen.
 
-Scheduled runs:
+Manual runs:
 
-- Morning: 06:30 Singapore time, Monday-Friday commute mornings.
-- Evening: 18:00 Singapore time, Monday-Friday, for the US cash-open setup.
+- Choose `morning` before your morning commute.
+- Choose `evening` before your evening commute.
+- Keep `mode=both` when you want the one-file audio output.
+- Use `mode=text` only when you want to save TTS cost.
 
 The workflow caches `outputs/` between runs so the static page can keep both the latest morning and evening artifacts when available.
 

@@ -46,6 +46,15 @@ def _audio_segments_for(json_path: Path) -> list[Path]:
     return segments
 
 
+def _audio_files_for(json_path: Path) -> list[Path]:
+    files = []
+    for suffix in [".m4a", ".aac", ".mp3", ".opus", ".flac", ".wav"]:
+        candidate = json_path.with_suffix(suffix)
+        if candidate.exists():
+            files.append(candidate)
+    return files or _audio_segments_for(json_path)
+
+
 def _estimated_minutes(brief: dict[str, Any]) -> int:
     words = len(re.findall(r"\b\w+\b", brief.get("audio_script", "")))
     return max(1, round(words / 155)) if words else 0
@@ -66,8 +75,8 @@ def _brief_payload(output_dir: Path, site_dir: Path, brief_type: str) -> dict[st
         markdown_url = _copy_file(markdown_path, artifact_dir / markdown_path.name, site_dir)
 
     audio_urls = []
-    for segment in _audio_segments_for(json_path):
-        audio_urls.append(_copy_file(segment, artifact_dir / segment.name, site_dir))
+    for audio_file in _audio_files_for(json_path):
+        audio_urls.append(_copy_file(audio_file, artifact_dir / audio_file.name, site_dir))
 
     return {
         "brief_type": brief_type,
@@ -150,7 +159,7 @@ INDEX_HTML = """<!doctype html>
     <section class="metrics" aria-label="Brief summary">
       <article><span>Mode</span><strong id="metricMode">-</strong><small>commute profile</small></article>
       <article><span>Generated</span><strong id="metricGenerated">-</strong><small id="metricDate">market date</small></article>
-      <article><span>Audio</span><strong id="metricAudio">-</strong><small>AAC playlist</small></article>
+      <article><span>Audio</span><strong id="metricAudio">-</strong><small>single-file player</small></article>
       <article><span>Runtime</span><strong id="metricMinutes">-</strong><small>estimated listen</small></article>
     </section>
 
@@ -508,20 +517,20 @@ function renderMetrics(meta) {
   el("metricMode").textContent = state.currentMode.toUpperCase();
   el("metricGenerated").textContent = fmtDate(meta?.generated_at);
   el("metricDate").textContent = meta?.market_date ? `market ${meta.market_date}` : "market date";
-  el("metricAudio").textContent = meta ? `${meta.audio_parts} parts` : "-";
+  el("metricAudio").textContent = meta ? `${meta.audio_parts} file${meta.audio_parts === 1 ? "" : "s"}` : "-";
   el("metricMinutes").textContent = meta?.estimated_minutes ? `${meta.estimated_minutes} min` : "-";
 }
 
 function renderAudio(meta) {
   if (!meta?.audio_urls?.length) {
-    el("audio").innerHTML = "<h2>Audio Playlist</h2><p>No compressed audio has been generated for this brief yet.</p>";
+    el("audio").innerHTML = "<h2>Brief Audio</h2><p>No compressed audio has been generated for this brief yet.</p>";
     return;
   }
-  el("audio").innerHTML = `<h2>Audio Playlist</h2>${meta.audio_urls.map((url, idx) => `
+  el("audio").innerHTML = `<h2>Brief Audio</h2>${meta.audio_urls.map((url, idx) => `
     <div class="audio-card">
-      <strong>Part ${String(idx + 1).padStart(2, "0")}</strong>
+      <strong>${meta.audio_urls.length === 1 ? `${state.currentMode[0].toUpperCase()}${state.currentMode.slice(1)} Brief` : `Part ${String(idx + 1).padStart(2, "0")}`}</strong>
       <audio controls preload="metadata" src="${escapeHtml(url)}"></audio>
-      <a class="download" href="${escapeHtml(url)}" download>Download part</a>
+      <a class="download" href="${escapeHtml(url)}" download>Download audio</a>
     </div>
   `).join("")}`;
 }

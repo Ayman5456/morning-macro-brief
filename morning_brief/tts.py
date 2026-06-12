@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import tempfile
 import wave
 from pathlib import Path
 
@@ -84,6 +86,48 @@ def combine_wav_segments(segment_paths: list[Path], output_path: Path) -> Path:
     return output_path
 
 
+def combined_output_path(output_path: Path, audio_format: str) -> Path:
+    if audio_format == "aac":
+        return output_path.with_suffix(".m4a")
+    return output_path.with_suffix(f".{audio_format}")
+
+
+def combine_compressed_segments(segment_paths: list[Path], output_path: Path) -> Path:
+    if not segment_paths:
+        raise ValueError("No audio segments to combine.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", encoding="utf-8", suffix=".txt", delete=False) as handle:
+        concat_path = Path(handle.name)
+        for segment in segment_paths:
+            escaped = str(segment.resolve()).replace("'", "'\\''")
+            handle.write(f"file '{escaped}'\n")
+    try:
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-hide_banner",
+                "-loglevel",
+                "error",
+                "-y",
+                "-f",
+                "concat",
+                "-safe",
+                "0",
+                "-i",
+                str(concat_path),
+                "-c",
+                "copy",
+                str(output_path),
+            ],
+            check=True,
+        )
+    except FileNotFoundError as exc:
+        raise RuntimeError("ffmpeg is required to merge compressed audio segments into one file.") from exc
+    finally:
+        concat_path.unlink(missing_ok=True)
+    return output_path
+
+
 def write_audio_manifest(segment_paths: list[Path], output_path: Path, audio_format: str) -> Path:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -114,10 +158,10 @@ def synthesize_long_audio(
             return combined, []
         return combined, segments
 
-    manifest = write_audio_manifest(segments, output_path.with_suffix(".audio.json"), audio_format)
+    combined = combine_compressed_segments(segments, combined_output_path(output_path, audio_format))
     if delete_segments:
-        # Keep segments for compressed formats by default. If explicitly deleted, the manifest becomes archival metadata only.
         for segment in segments:
             segment.unlink(missing_ok=True)
-        return manifest, []
-    return manifest, segments
+        return combined, []
+    write_audio_manifest(segments, output_path.with_suffix(".audio.json"), audio_format)
+    return combined, segments

@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 
-AUDIO_EXTENSIONS = {".aac", ".mp3", ".opus", ".flac", ".wav", ".pcm", ".audio.json"}
+AUDIO_EXTENSIONS = {".aac", ".m4a", ".mp3", ".opus", ".flac", ".wav", ".pcm", ".audio.json"}
 
 
 def _audio_sort_key(path: Path) -> tuple[float, str]:

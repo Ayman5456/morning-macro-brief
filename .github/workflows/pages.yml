@@ -19,11 +19,6 @@ on:
         options:
           - text
           - both
-  schedule:
-    # 06:30 Singapore time, Sunday-Thursday UTC for Monday-Friday commute mornings.
-    - cron: "30 22 * * 0-4"
-    # 18:00 Singapore time, Monday-Friday, before the US cash open setup window.
-    - cron: "0 10 * * 1-5"
 
 permissions:
   contents: read
@@ -37,6 +32,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -48,6 +45,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
       - name: Install dependencies
         run: python -m pip install .
@@ -64,16 +64,9 @@ jobs:
         id: select
         shell: bash
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "brief_type=${{ inputs.brief_type }}" >> "$GITHUB_OUTPUT"
-            echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "0 10 * * 1-5" ]; then
-            echo "brief_type=evening" >> "$GITHUB_OUTPUT"
-            echo "mode=text" >> "$GITHUB_OUTPUT"
-          else
-            echo "brief_type=morning" >> "$GITHUB_OUTPUT"
-            echo "mode=both" >> "$GITHUB_OUTPUT"
-          fi
+          echo "brief_type=${{ inputs.brief_type }}" >> "$GITHUB_OUTPUT"
+          echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+          echo "Manual run selected: ${{ inputs.brief_type }} / ${{ inputs.mode }}"
 
       - name: Generate latest brief
         env:
@@ -81,7 +74,7 @@ jobs:
           BRIEF_TIMEZONE: Asia/Singapore
           BRIEF_AUDIO_FORMAT: aac
           BRIEF_KEEP_AUDIO_FILES: "1"
-        run: python -m morning_brief.cli --brief-type "${{ steps.select.outputs.brief_type }}" --mode "${{ steps.select.outputs.mode }}" --audio-format aac --keep-audio 1
+        run: python -m morning_brief.cli --brief-type "${{ steps.select.outputs.brief_type }}" --mode "${{ steps.select.outputs.mode }}" --audio-format aac --keep-audio 1 --delete-audio-segments
 
       - name: Export static site
         run: python -m morning_brief.static_site --output-dir outputs --site-dir site
