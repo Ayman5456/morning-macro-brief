@@ -360,8 +360,8 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-    today, macro, portfolio, audio, transcript, controls = st.tabs(
-        ["Today", "Global Macro", "Portfolio", "Audio", "Transcript", "Controls"]
+    today, macro, portfolio, ideas, audio, transcript, controls = st.tabs(
+        ["Today", "Global Macro", "Portfolio", "Diversify", "Audio", "Transcript", "Controls"]
     )
 
     with today:
@@ -401,6 +401,14 @@ def main() -> None:
             if not changes.empty:
                 label_col, change_col = changes.columns[0], changes.columns[1]
                 st.bar_chart(changes.set_index(label_col)[change_col], height=360)
+
+    with ideas:
+        st.subheader("Diversification Research Watchlist")
+        diversification_section = section_text(markdown, "Diversification")
+        if diversification_section:
+            st.markdown(diversification_section)
+        else:
+            st.info("No diversification watchlist section found in the latest brief.")
 
     with audio:
         st.subheader("Audio Playlist")

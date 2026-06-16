@@ -41,6 +41,8 @@ def collect_errors(context: dict[str, Any]) -> list[str]:
         "portfolio_market_data",
         "portfolio_news",
         "portfolio_ticker_news",
+        "diversification_watchlist_market_data",
+        "diversification_watchlist_ticker_news",
     ]:
         errors.extend(context.get(section, {}).get("errors", []))
     return errors
@@ -59,6 +61,10 @@ def fallback_output(context: dict[str, Any]) -> BriefOutput:
     portfolio_rows = context.get("portfolio_market_data", {}).get("rows", [])
     portfolio_news = {row.get("ticker"): row for row in context.get("portfolio_news", {}).get("rows", [])}
     ticker_news = {row.get("ticker"): row for row in context.get("portfolio_ticker_news", {}).get("rows", [])}
+    diversification_rows = context.get("diversification_watchlist_market_data", {}).get("rows", [])
+    diversification_news = {
+        row.get("ticker"): row for row in context.get("diversification_watchlist_ticker_news", {}).get("rows", [])
+    }
 
     parts = [
         f"# Global {brief_type.title()} Macro Brief - {target_date}",
@@ -107,6 +113,8 @@ def fallback_output(context: dict[str, Any]) -> BriefOutput:
         "",
         "## Portfolio Snapshot",
         "",
+        "Portfolio holdings are the primary focus. Use the full agent run for thesis, catalyst, risk, and macro/industry read-through by holding.",
+        "",
         _table(
             ["Holding", "Symbol", "Level", "Change %", "Broad Matches", "Ticker Headlines"],
             [
@@ -119,6 +127,24 @@ def fallback_output(context: dict[str, Any]) -> BriefOutput:
                     len(ticker_news.get(str(row.get("symbol")), {}).get("headlines", [])),
                 ]
                 for row in portfolio_rows
+            ],
+        ),
+        "",
+        "## Diversification Research Watchlist",
+        "",
+        "This is a research watchlist only, not a buy list. It is included to help compare portfolio concentration against broader macro and industry exposures.",
+        "",
+        _table(
+            ["Candidate", "Symbol", "Level", "Change %", "Ticker Headlines"],
+            [
+                [
+                    row.get("name"),
+                    row.get("symbol"),
+                    row.get("price"),
+                    row.get("change_pct"),
+                    len(diversification_news.get(str(row.get("symbol")), {}).get("headlines", [])),
+                ]
+                for row in diversification_rows
             ],
         ),
         "",
@@ -142,7 +168,7 @@ def fallback_output(context: dict[str, Any]) -> BriefOutput:
         [
             f"Global morning macro brief for {target_date}.",
             "The data collector has assembled global markets, US rates, macro calendar items, public headlines, and portfolio snapshots.",
-            "Run the full agent path for a 15-minute explanation of what the data means for economies, markets, and the portfolio.",
+            "Run the full agent path for a 15-minute explanation of what the data means for economies, markets, the portfolio, and diversification candidates.",
             "This is informational only and not investment advice.",
         ]
     )

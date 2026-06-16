@@ -10,8 +10,10 @@ Core requirements:
 - Cover global economies, not only the US: United States, Europe, China/Hong Kong, India, Singapore, Japan, and South Korea.
 - Explain what the data means for markets and economies. Facts alone are insufficient.
 - Tie macro developments to rates, FX, liquidity, earnings expectations, risk appetite, and portfolio exposures.
-- Include a portfolio section for each holding where data exists, with watch items and outlook implications.
-- Avoid direct buy/sell instructions. Use monitoring language and thesis/risk framing.
+- Make the portfolio the center of gravity of the brief. Roughly 40% to 50% of the spoken brief should be portfolio impact, portfolio risks, holding-specific catalysts, and diversification implications.
+- Include a portfolio section for each holding where data exists, with watch items, thesis implications, industry read-through, and future outlook.
+- Add a diversification research watchlist section based on supplied macro, industry, market, and watchlist data. This section should identify companies worth monitoring as potential diversifiers, explain the macro/industry rationale, and compare them against current portfolio concentration.
+- Avoid direct buy/sell instructions. Use monitoring language, thesis/risk framing, position-sizing caution, and "research candidate" language.
 - For a `morning` brief in Singapore time, emphasize the overnight US close, Asia open, Europe context, macro/rates, and what matters for the day ahead.
 - For an `evening` brief in Singapore time, emphasize the upcoming US cash open, US pre-market setup, futures/proxy moves where supplied, same-day US macro releases, earnings/events, and what to watch around the 9:30 AM New York open.
 - Use the supplied `session_context` for Singapore/New York timing. Do not hard-code US open as always 9:30 PM SGT; daylight saving and standard time differ.
@@ -39,6 +41,9 @@ Required structure:
    - South Korea
 4. Rates, FX, commodities, and central bank implications.
 5. Portfolio impact:
+   - Start with a portfolio-level exposure map: AI infrastructure, semiconductors, space/satellite, speculative technology, gold, index exposure, defense/industrial, and regional/currency exposures.
+   - Explain which macro variables matter most for the portfolio today: rates, dollar, credit, liquidity, capex cycle, risk appetite, earnings revisions, energy/geopolitics, and Asia tech cycle.
+   - For every holding, cover what changed, what it means, what to monitor next, and whether the day changes or reinforces the forward outlook.
    - NBIS
    - APLD
    - VPG
@@ -53,5 +58,10 @@ Required structure:
    - VSTS
    - RDZN
    - 005930.KS / Samsung Electronics
-6. What to watch next. For evening briefs, make this specifically about the upcoming US cash session.
-7. Informational-only disclaimer.
+6. Diversification research watchlist:
+   - Use the supplied `diversification_watchlist_market_data` and `diversification_watchlist_ticker_news`.
+   - Focus on names that add exposure not already dominant in the portfolio: quality mega-cap software, payments/financials, healthcare, consumer staples, industrial electrification, energy, utilities, non-US developed-market leaders, and semiconductor supply-chain balance.
+   - For each highlighted candidate, explain the macro/industry reason to monitor it, the risk it would diversify, and the key trigger or data point to wait for.
+   - Do not present the watchlist as a recommendation to buy today.
+7. What to watch next. For evening briefs, make this specifically about the upcoming US cash session.
+8. Informational-only disclaimer.

@@ -69,6 +69,25 @@ RSS_FEEDS = {
     "Nikkei Asia": "https://asia.nikkei.com/rss/feed/nar",
 }
 
+DIVERSIFICATION_WATCHLIST = {
+    "MSFT - Microsoft": "MSFT",
+    "AMZN - Amazon": "AMZN",
+    "META - Meta Platforms": "META",
+    "BRK-B - Berkshire Hathaway": "BRK-B",
+    "JPM - JPMorgan Chase": "JPM",
+    "V - Visa": "V",
+    "LLY - Eli Lilly": "LLY",
+    "UNH - UnitedHealth": "UNH",
+    "COST - Costco": "COST",
+    "CAT - Caterpillar": "CAT",
+    "ETN - Eaton": "ETN",
+    "XOM - Exxon Mobil": "XOM",
+    "NEE - NextEra Energy": "NEE",
+    "TM - Toyota Motor ADR": "TM",
+    "ASML - ASML ADR": "ASML",
+    "TSM - Taiwan Semiconductor ADR": "TSM",
+}
+
 
 def build_session_context(options: BriefOptions, now: datetime) -> dict[str, Any]:
     singapore = ZoneInfo("Asia/Singapore")
@@ -399,6 +418,31 @@ def fetch_portfolio_ticker_news(portfolio: dict[str, Any]) -> dict[str, Any]:
     return {"source_name": "Yahoo Finance per-ticker RSS", "rows": rows, "errors": errors}
 
 
+def _watchlist_holding(label: str, symbol: str) -> dict[str, Any]:
+    name = label.split(" - ", 1)[1] if " - " in label else label
+    return {"ticker": symbol, "name": name, "theme": "Diversification watchlist", "region": "Global/US-listed"}
+
+
+def fetch_diversification_market_data() -> dict[str, Any]:
+    return fetch_yahoo_symbols(DIVERSIFICATION_WATCHLIST, "Yahoo Finance diversification watchlist")
+
+
+def fetch_diversification_ticker_news() -> dict[str, Any]:
+    rows: list[dict[str, Any]] = []
+    errors: list[str] = []
+    holdings = [_watchlist_holding(label, symbol) for label, symbol in DIVERSIFICATION_WATCHLIST.items()]
+    with ThreadPoolExecutor(max_workers=8) as executor:
+        futures = [executor.submit(_fetch_yahoo_ticker_news, holding) for holding in holdings]
+        for future in as_completed(futures):
+            row, error = future.result()
+            rows.append(row)
+            if error:
+                errors.append(error)
+    order = list(DIVERSIFICATION_WATCHLIST.values())
+    rows.sort(key=lambda row: order.index(row["ticker"]) if row["ticker"] in order else 999)
+    return {"source_name": "Yahoo Finance diversification watchlist RSS", "rows": rows, "errors": errors}
+
+
 def collect_context(options: BriefOptions, portfolio_path: Path) -> dict[str, Any]:
     tz = ZoneInfo(options.timezone)
     now = datetime.now(tz)
@@ -423,6 +467,8 @@ def collect_context(options: BriefOptions, portfolio_path: Path) -> dict[str, An
         "portfolio_market_data": fetch_portfolio_market_data(portfolio),
         "portfolio_news": fetch_portfolio_news(portfolio, global_news.get("rows", [])),
         "portfolio_ticker_news": fetch_portfolio_ticker_news(portfolio),
+        "diversification_watchlist_market_data": fetch_diversification_market_data(),
+        "diversification_watchlist_ticker_news": fetch_diversification_ticker_news(),
     }
 
 
@@ -512,6 +558,35 @@ def sample_context(options: BriefOptions, portfolio_path: Path) -> dict[str, Any
                     ],
                 }
                 for h in portfolio["holdings"]
+            ],
+            "errors": [],
+        },
+        "diversification_watchlist_market_data": {
+            "source_name": "Sample diversification watchlist market data",
+            "rows": [
+                {"name": "MSFT - Microsoft", "symbol": "MSFT", "price": 455, "change_pct": 0.4},
+                {"name": "JPM - JPMorgan Chase", "symbol": "JPM", "price": 205, "change_pct": 0.8},
+                {"name": "LLY - Eli Lilly", "symbol": "LLY", "price": 880, "change_pct": -0.2},
+                {"name": "CAT - Caterpillar", "symbol": "CAT", "price": 330, "change_pct": 0.6},
+                {"name": "XOM - Exxon Mobil", "symbol": "XOM", "price": 115, "change_pct": 0.3},
+            ],
+            "errors": [],
+        },
+        "diversification_watchlist_ticker_news": {
+            "source_name": "Sample diversification watchlist ticker news",
+            "rows": [
+                {
+                    "ticker": ticker,
+                    "name": name,
+                    "headlines": [{"title": f"Sample update for {ticker}", "link": f"https://example.com/{ticker.lower()}"}],
+                }
+                for ticker, name in [
+                    ("MSFT", "Microsoft"),
+                    ("JPM", "JPMorgan Chase"),
+                    ("LLY", "Eli Lilly"),
+                    ("CAT", "Caterpillar"),
+                    ("XOM", "Exxon Mobil"),
+                ]
             ],
             "errors": [],
         },

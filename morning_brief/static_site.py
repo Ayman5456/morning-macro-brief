@@ -167,6 +167,7 @@ INDEX_HTML = """<!doctype html>
       <button class="tab active" data-tab="today" type="button">Today</button>
       <button class="tab" data-tab="macro" type="button">Macro</button>
       <button class="tab" data-tab="portfolio" type="button">Portfolio</button>
+      <button class="tab" data-tab="ideas" type="button">Diversify</button>
       <button class="tab" data-tab="audio" type="button">Audio</button>
       <button class="tab" data-tab="transcript" type="button">Transcript</button>
     </nav>
@@ -174,6 +175,7 @@ INDEX_HTML = """<!doctype html>
     <section id="today" class="panel active"></section>
     <section id="macro" class="panel"></section>
     <section id="portfolio" class="panel"></section>
+    <section id="ideas" class="panel"></section>
     <section id="audio" class="panel"></section>
     <section id="transcript" class="panel"></section>
   </main>
@@ -542,7 +544,7 @@ function render() {
   if (!meta || !state.currentBrief) {
     el("status").className = "status";
     el("status").textContent = `No ${state.currentMode} brief artifact found in this static export.`;
-    ["today", "macro", "portfolio", "audio", "transcript"].forEach((id) => { el(id).innerHTML = ""; });
+    ["today", "macro", "portfolio", "ideas", "audio", "transcript"].forEach((id) => { el(id).innerHTML = ""; });
     return;
   }
 
@@ -557,6 +559,7 @@ function render() {
     section(markdown, /Rates|Macro|Economy|Calendar/i),
   ].filter(Boolean).join("\\n\\n") || markdown);
   el("portfolio").innerHTML = markdownToHtml(section(markdown, /Portfolio/i) || "## Portfolio\\nNo portfolio section found.");
+  el("ideas").innerHTML = markdownToHtml(section(markdown, /Diversification/i) || "## Diversification Research Watchlist\\nNo diversification section found.");
   renderAudio(meta);
   el("transcript").innerHTML = markdownToHtml(markdown) + (meta.markdown_url ? `<a class="download" href="${escapeHtml(meta.markdown_url)}" download>Download Markdown</a>` : "");
 }
