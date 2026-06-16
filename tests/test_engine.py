@@ -18,10 +18,11 @@ def test_sample_fallback_has_global_and_portfolio_sections() -> None:
     output = fallback_output(context)
     assert "Global Market Snapshot" in output.markdown
     assert "Portfolio Snapshot" in output.markdown
-    assert "Diversification Research Watchlist" in output.markdown
+    assert "Macro-Driven Diversification Map" in output.markdown
     assert "Japan" in output.markdown
     assert "NBIS" in output.markdown
-    assert "MSFT" in output.markdown
+    assert "India equities" in output.markdown
+    assert "Financials" in output.markdown
     assert "US cash open" in output.markdown
     assert output.brief_type == "evening"
 

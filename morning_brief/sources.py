@@ -69,23 +69,97 @@ RSS_FEEDS = {
     "Nikkei Asia": "https://asia.nikkei.com/rss/feed/nar",
 }
 
-DIVERSIFICATION_WATCHLIST = {
-    "MSFT - Microsoft": "MSFT",
-    "AMZN - Amazon": "AMZN",
-    "META - Meta Platforms": "META",
-    "BRK-B - Berkshire Hathaway": "BRK-B",
-    "JPM - JPMorgan Chase": "JPM",
-    "V - Visa": "V",
-    "LLY - Eli Lilly": "LLY",
-    "UNH - UnitedHealth": "UNH",
-    "COST - Costco": "COST",
-    "CAT - Caterpillar": "CAT",
-    "ETN - Eaton": "ETN",
-    "XOM - Exxon Mobil": "XOM",
-    "NEE - NextEra Energy": "NEE",
-    "TM - Toyota Motor ADR": "TM",
-    "ASML - ASML ADR": "ASML",
-    "TSM - Taiwan Semiconductor ADR": "TSM",
+DIVERSIFICATION_EXPOSURE_PROXIES = {
+    "US quality mega-cap software": {
+        "symbol": "IGV",
+        "country_region": "United States",
+        "industry_sector": "Software",
+        "exposure_reason": "Quality software can diversify away from hardware-heavy AI infrastructure while retaining secular tech exposure.",
+    },
+    "US financials and capital markets": {
+        "symbol": "XLF",
+        "country_region": "United States",
+        "industry_sector": "Financials",
+        "exposure_reason": "Banks, brokers, and payment networks add rate, credit, and nominal-growth exposure outside the current speculative growth tilt.",
+    },
+    "US healthcare and pharma": {
+        "symbol": "XLV",
+        "country_region": "United States",
+        "industry_sector": "Healthcare",
+        "exposure_reason": "Healthcare can add defensive earnings and idiosyncratic drug-cycle exposure when rates pressure long-duration growth.",
+    },
+    "US consumer staples": {
+        "symbol": "XLP",
+        "country_region": "United States",
+        "industry_sector": "Consumer staples",
+        "exposure_reason": "Staples can cushion cyclicality and risk-off equity drawdowns.",
+    },
+    "US industrials and electrification": {
+        "symbol": "XLI",
+        "country_region": "United States",
+        "industry_sector": "Industrials",
+        "exposure_reason": "Industrials add reshoring, capex, infrastructure, aerospace, and electrification exposure.",
+    },
+    "US energy": {
+        "symbol": "XLE",
+        "country_region": "United States",
+        "industry_sector": "Energy",
+        "exposure_reason": "Energy can hedge inflation, geopolitical shocks, and commodity upside that may hurt growth equities.",
+    },
+    "US utilities and power demand": {
+        "symbol": "XLU",
+        "country_region": "United States",
+        "industry_sector": "Utilities",
+        "exposure_reason": "Utilities provide defensive yield exposure and potential AI/data-center power-demand read-through.",
+    },
+    "US semiconductors broad supply chain": {
+        "symbol": "SMH",
+        "country_region": "Global/US-listed",
+        "industry_sector": "Semiconductors",
+        "exposure_reason": "Broad semis help compare existing MRVL/Samsung exposure against the wider AI and memory supply chain.",
+    },
+    "Japan equities": {
+        "symbol": "EWJ",
+        "country_region": "Japan",
+        "industry_sector": "Broad market",
+        "exposure_reason": "Japan can diversify geography and currency exposure while adding automation, exporters, and governance reform themes.",
+    },
+    "South Korea equities": {
+        "symbol": "EWY",
+        "country_region": "South Korea",
+        "industry_sector": "Broad market / memory",
+        "exposure_reason": "Korea adds memory-cycle and Asian export beta, but overlaps with Samsung and AI hardware cyclicality.",
+    },
+    "India equities": {
+        "symbol": "INDA",
+        "country_region": "India",
+        "industry_sector": "Broad market",
+        "exposure_reason": "India adds domestic-demand and financialization exposure less tied to US mega-cap duration risk.",
+    },
+    "Singapore equities": {
+        "symbol": "EWS",
+        "country_region": "Singapore",
+        "industry_sector": "Banks / REITs / defensives",
+        "exposure_reason": "Singapore exposure can add local currency, bank, REIT, and defensive income sensitivity.",
+    },
+    "Europe equities": {
+        "symbol": "VGK",
+        "country_region": "Europe",
+        "industry_sector": "Broad market",
+        "exposure_reason": "Europe adds value, industrial, luxury, pharma, and bank exposure outside US growth concentration.",
+    },
+    "China large-cap equities": {
+        "symbol": "FXI",
+        "country_region": "China/Hong Kong",
+        "industry_sector": "Large-cap China",
+        "exposure_reason": "China can add policy-cycle and valuation-recovery optionality, but with regulatory and property-cycle risk.",
+    },
+    "Taiwan equities": {
+        "symbol": "EWT",
+        "country_region": "Taiwan",
+        "industry_sector": "Semiconductor supply chain",
+        "exposure_reason": "Taiwan is useful for AI supply-chain comparison, though it can increase existing semiconductor concentration.",
+    },
 }
 
 
@@ -418,19 +492,32 @@ def fetch_portfolio_ticker_news(portfolio: dict[str, Any]) -> dict[str, Any]:
     return {"source_name": "Yahoo Finance per-ticker RSS", "rows": rows, "errors": errors}
 
 
-def _watchlist_holding(label: str, symbol: str) -> dict[str, Any]:
-    name = label.split(" - ", 1)[1] if " - " in label else label
-    return {"ticker": symbol, "name": name, "theme": "Diversification watchlist", "region": "Global/US-listed"}
+def _exposure_proxy_symbol_map() -> dict[str, str]:
+    return {label: str(meta["symbol"]) for label, meta in DIVERSIFICATION_EXPOSURE_PROXIES.items()}
 
 
 def fetch_diversification_market_data() -> dict[str, Any]:
-    return fetch_yahoo_symbols(DIVERSIFICATION_WATCHLIST, "Yahoo Finance diversification watchlist")
+    data = fetch_yahoo_symbols(_exposure_proxy_symbol_map(), "Yahoo Finance diversification exposure proxies")
+    for row in data.get("rows", []):
+        meta = DIVERSIFICATION_EXPOSURE_PROXIES.get(str(row.get("name")), {})
+        row["country_region"] = meta.get("country_region")
+        row["industry_sector"] = meta.get("industry_sector")
+        row["exposure_reason"] = meta.get("exposure_reason")
+    return data
 
 
 def fetch_diversification_ticker_news() -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     errors: list[str] = []
-    holdings = [_watchlist_holding(label, symbol) for label, symbol in DIVERSIFICATION_WATCHLIST.items()]
+    holdings = [
+        {
+            "ticker": str(meta["symbol"]),
+            "name": label,
+            "theme": meta["industry_sector"],
+            "region": meta["country_region"],
+        }
+        for label, meta in DIVERSIFICATION_EXPOSURE_PROXIES.items()
+    ]
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = [executor.submit(_fetch_yahoo_ticker_news, holding) for holding in holdings]
         for future in as_completed(futures):
@@ -438,9 +525,9 @@ def fetch_diversification_ticker_news() -> dict[str, Any]:
             rows.append(row)
             if error:
                 errors.append(error)
-    order = list(DIVERSIFICATION_WATCHLIST.values())
+    order = [str(meta["symbol"]) for meta in DIVERSIFICATION_EXPOSURE_PROXIES.values()]
     rows.sort(key=lambda row: order.index(row["ticker"]) if row["ticker"] in order else 999)
-    return {"source_name": "Yahoo Finance diversification watchlist RSS", "rows": rows, "errors": errors}
+    return {"source_name": "Yahoo Finance diversification exposure proxy RSS", "rows": rows, "errors": errors}
 
 
 def collect_context(options: BriefOptions, portfolio_path: Path) -> dict[str, Any]:
@@ -467,8 +554,8 @@ def collect_context(options: BriefOptions, portfolio_path: Path) -> dict[str, An
         "portfolio_market_data": fetch_portfolio_market_data(portfolio),
         "portfolio_news": fetch_portfolio_news(portfolio, global_news.get("rows", [])),
         "portfolio_ticker_news": fetch_portfolio_ticker_news(portfolio),
-        "diversification_watchlist_market_data": fetch_diversification_market_data(),
-        "diversification_watchlist_ticker_news": fetch_diversification_ticker_news(),
+        "diversification_exposure_market_data": fetch_diversification_market_data(),
+        "diversification_exposure_news": fetch_diversification_ticker_news(),
     }
 
 
@@ -561,19 +648,59 @@ def sample_context(options: BriefOptions, portfolio_path: Path) -> dict[str, Any
             ],
             "errors": [],
         },
-        "diversification_watchlist_market_data": {
-            "source_name": "Sample diversification watchlist market data",
+        "diversification_exposure_market_data": {
+            "source_name": "Sample diversification exposure proxy market data",
             "rows": [
-                {"name": "MSFT - Microsoft", "symbol": "MSFT", "price": 455, "change_pct": 0.4},
-                {"name": "JPM - JPMorgan Chase", "symbol": "JPM", "price": 205, "change_pct": 0.8},
-                {"name": "LLY - Eli Lilly", "symbol": "LLY", "price": 880, "change_pct": -0.2},
-                {"name": "CAT - Caterpillar", "symbol": "CAT", "price": 330, "change_pct": 0.6},
-                {"name": "XOM - Exxon Mobil", "symbol": "XOM", "price": 115, "change_pct": 0.3},
+                {
+                    "name": "US quality mega-cap software",
+                    "symbol": "IGV",
+                    "price": 102,
+                    "change_pct": 0.4,
+                    "country_region": "United States",
+                    "industry_sector": "Software",
+                    "exposure_reason": "Quality software can diversify away from hardware-heavy AI infrastructure.",
+                },
+                {
+                    "name": "US financials and capital markets",
+                    "symbol": "XLF",
+                    "price": 45,
+                    "change_pct": 0.8,
+                    "country_region": "United States",
+                    "industry_sector": "Financials",
+                    "exposure_reason": "Financials add rate, credit, and nominal-growth exposure.",
+                },
+                {
+                    "name": "India equities",
+                    "symbol": "INDA",
+                    "price": 58,
+                    "change_pct": 0.5,
+                    "country_region": "India",
+                    "industry_sector": "Broad market",
+                    "exposure_reason": "India adds domestic-demand exposure less tied to US mega-cap duration risk.",
+                },
+                {
+                    "name": "Japan equities",
+                    "symbol": "EWJ",
+                    "price": 73,
+                    "change_pct": -0.1,
+                    "country_region": "Japan",
+                    "industry_sector": "Broad market",
+                    "exposure_reason": "Japan adds automation, exporters, currency, and governance reform themes.",
+                },
+                {
+                    "name": "US energy",
+                    "symbol": "XLE",
+                    "price": 92,
+                    "change_pct": 0.3,
+                    "country_region": "United States",
+                    "industry_sector": "Energy",
+                    "exposure_reason": "Energy can hedge inflation and geopolitical shocks.",
+                },
             ],
             "errors": [],
         },
-        "diversification_watchlist_ticker_news": {
-            "source_name": "Sample diversification watchlist ticker news",
+        "diversification_exposure_news": {
+            "source_name": "Sample diversification exposure proxy news",
             "rows": [
                 {
                     "ticker": ticker,
@@ -581,11 +708,11 @@ def sample_context(options: BriefOptions, portfolio_path: Path) -> dict[str, Any
                     "headlines": [{"title": f"Sample update for {ticker}", "link": f"https://example.com/{ticker.lower()}"}],
                 }
                 for ticker, name in [
-                    ("MSFT", "Microsoft"),
-                    ("JPM", "JPMorgan Chase"),
-                    ("LLY", "Eli Lilly"),
-                    ("CAT", "Caterpillar"),
-                    ("XOM", "Exxon Mobil"),
+                    ("IGV", "US quality mega-cap software"),
+                    ("XLF", "US financials and capital markets"),
+                    ("INDA", "India equities"),
+                    ("EWJ", "Japan equities"),
+                    ("XLE", "US energy"),
                 ]
             ],
             "errors": [],

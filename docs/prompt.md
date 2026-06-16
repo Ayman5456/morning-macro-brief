@@ -12,8 +12,8 @@ Core requirements:
 - Tie macro developments to rates, FX, liquidity, earnings expectations, risk appetite, and portfolio exposures.
 - Make the portfolio the center of gravity of the brief. Roughly 40% to 50% of the spoken brief should be portfolio impact, portfolio risks, holding-specific catalysts, and diversification implications.
 - Include a portfolio section for each holding where data exists, with watch items, thesis implications, industry read-through, and future outlook.
-- Add a diversification research watchlist section based on supplied macro, industry, market, and watchlist data. This section should identify companies worth monitoring as potential diversifiers, explain the macro/industry rationale, and compare them against current portfolio concentration.
-- Avoid direct buy/sell instructions. Use monitoring language, thesis/risk framing, position-sizing caution, and "research candidate" language.
+- Add a macro-driven diversification map based on supplied macro, country, sector, industry, and exposure-proxy data. This section should judge what kinds of equities, in which industries and countries, deserve research relative to the user's current holdings.
+- Avoid direct buy/sell instructions. Use monitoring language, thesis/risk framing, position-sizing caution, and "research exposure" language.
 - For a `morning` brief in Singapore time, emphasize the overnight US close, Asia open, Europe context, macro/rates, and what matters for the day ahead.
 - For an `evening` brief in Singapore time, emphasize the upcoming US cash open, US pre-market setup, futures/proxy moves where supplied, same-day US macro releases, earnings/events, and what to watch around the 9:30 AM New York open.
 - Use the supplied `session_context` for Singapore/New York timing. Do not hard-code US open as always 9:30 PM SGT; daylight saving and standard time differ.
@@ -58,10 +58,13 @@ Required structure:
    - VSTS
    - RDZN
    - 005930.KS / Samsung Electronics
-6. Diversification research watchlist:
-   - Use the supplied `diversification_watchlist_market_data` and `diversification_watchlist_ticker_news`.
-   - Focus on names that add exposure not already dominant in the portfolio: quality mega-cap software, payments/financials, healthcare, consumer staples, industrial electrification, energy, utilities, non-US developed-market leaders, and semiconductor supply-chain balance.
-   - For each highlighted candidate, explain the macro/industry reason to monitor it, the risk it would diversify, and the key trigger or data point to wait for.
-   - Do not present the watchlist as a recommendation to buy today.
+6. Macro-driven diversification map:
+   - Use the supplied `diversification_exposure_market_data` and `diversification_exposure_news` as country, sector, and industry exposure proxies, not as a pre-built stock recommendation list.
+   - Start from the macro regime and portfolio concentration: rates, dollar, credit, inflation, energy/geopolitics, earnings revisions, AI capex cycle, Asia semiconductor cycle, and regional growth/policy divergence.
+   - Judge which countries and industries look useful to research now, which look unattractive or redundant, and why.
+   - Describe the sort of equities that would fit each exposure, for example quality software, financials, healthcare, staples, industrial electrification, energy, utilities, India domestic demand, Japan automation/exporters, Singapore banks/REITs, Europe industrials/pharma/banks, or China policy-beta equities.
+   - If you mention example companies, clearly label them as examples requiring separate research. Do not imply company-specific data unless it appears in the supplied context.
+   - For each highlighted exposure, explain the macro/industry reason to monitor it, the current-portfolio risk it would diversify, and the trigger or data point to wait for.
+   - Do not present the map as a recommendation to buy today.
 7. What to watch next. For evening briefs, make this specifically about the upcoming US cash session.
 8. Informational-only disclaimer.

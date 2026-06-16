@@ -403,12 +403,12 @@ def main() -> None:
                 st.bar_chart(changes.set_index(label_col)[change_col], height=360)
 
     with ideas:
-        st.subheader("Diversification Research Watchlist")
+        st.subheader("Macro-Driven Diversification Map")
         diversification_section = section_text(markdown, "Diversification")
         if diversification_section:
             st.markdown(diversification_section)
         else:
-            st.info("No diversification watchlist section found in the latest brief.")
+            st.info("No macro-driven diversification section found in the latest brief.")
 
     with audio:
         st.subheader("Audio Playlist")

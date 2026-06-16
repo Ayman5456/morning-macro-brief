@@ -559,7 +559,7 @@ function render() {
     section(markdown, /Rates|Macro|Economy|Calendar/i),
   ].filter(Boolean).join("\\n\\n") || markdown);
   el("portfolio").innerHTML = markdownToHtml(section(markdown, /Portfolio/i) || "## Portfolio\\nNo portfolio section found.");
-  el("ideas").innerHTML = markdownToHtml(section(markdown, /Diversification/i) || "## Diversification Research Watchlist\\nNo diversification section found.");
+  el("ideas").innerHTML = markdownToHtml(section(markdown, /Diversification/i) || "## Macro-Driven Diversification Map\\nNo macro-driven diversification section found.");
   renderAudio(meta);
   el("transcript").innerHTML = markdownToHtml(markdown) + (meta.markdown_url ? `<a class="download" href="${escapeHtml(meta.markdown_url)}" download>Download Markdown</a>` : "");
 }
